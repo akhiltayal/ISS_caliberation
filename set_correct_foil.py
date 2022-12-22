@@ -161,4 +161,5 @@ def find_correct_foil2(element='Cu', edge="K"):
         print(foils_options[1][0].split('-')[0])
 
 
-find_correct_foil2(element='Os', edge='L1')
+find_correct_foil2(element='Eu', edge='L1')
+print("test")
