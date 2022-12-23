@@ -150,7 +150,7 @@ def find_correct_foil2(element='Cu', edge="K"):
     elif edge in k_edge:
         edge = "K"
 
-    foils_options = dict([(key, value) for key,value in ISS_foils_edges.items() if element_edge_itsvalue_sorted[element+"-"+edge]>value-200 and element_edge_itsvalue_sorted[element+"-"+edge]<value+1000])
+    foils_options = dict([(key, value) for key,value in ISS_foils_edges.items() if value>element_edge_itsvalue_sorted[element+"-"+edge]-200 and value<element_edge_itsvalue_sorted[element+"-"+edge]+500])
     foils_options = [(key, value) for key, value in foils_options.items()]
 
     if len(foils_options)==1:
