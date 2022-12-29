@@ -68,7 +68,8 @@ elements_dictonary = {'Sc': {'K': '4492', 'L-I': '498.0', 'L-2': '403.6', 'L-3':
                       'Ra': {'K': '103922', 'L-I': '19237', 'L-2': '18484', 'L-3': '15444'},
                       'Ac': {'K': '106755', 'L-I': '19840', 'L-2': '19083', 'L-3': '15871'},
                       'Th': {'K': '109651', 'L-I': '20472', 'L-2': '19693', 'L-3': '16300'},
-                      'Pa': {'K': '112601', 'L-I': '21105', 'L-2': '20314', 'L-3': '16733'}}
+                      'Pa': {'K': '112601', 'L-I': '21105', 'L-2': '20314', 'L-3': '16733'},
+                       'U': {'K': '115606', 'L-I':  '21757', 'L-2': '20948', 'L-3': '17166'},}
 
 ISS_foils= {'Sc': {'K': '4492', 'L-I': '498.0', 'L-2': '403.6', 'L-3': '398.7'},
             'Ti': {'K': '4966', 'L-I': '560.9', 'L-2': '460.2', 'L-3': '453.8'},
@@ -112,34 +113,72 @@ for element in ISS_foils.keys():
         ISS_element_edge_itsvalue[element+"-"+edge] = float(elements_dictonary[element][edge])
 ISS_element_edge_itsvalue_sorted = dict(sorted(ISS_element_edge_itsvalue.items(), key=lambda item: item[1]))
 
-ISS_foils_edges = dict([(key, value) for key,value in ISS_element_edge_itsvalue_sorted.items() if value>4500 and value<30000])
+ISS_foils_edges = dict([(key, value) for key,value in ISS_element_edge_itsvalue_sorted.items() if value>4500 and value<32000])
 
 # for key, value in ISS_element_edge_itsvalue_sorted.items():
 #     if value>4500 and value<30000:
 #         print(key)
+
+import pandas as pd
 
 l3_edge = ["L3", "l3", "LIII", "L-III", "l-III", "L-3", "l-3"]
 l2_edge = ["L2", "l2", "LII", "L-II", "l-II",  "L-2", "l-2"]
 l1_edge = ["L1", "l1", "LI", "L-I", "l-I",  "L-1", "l-1"]
 k_edge = ['k', "K"]
 
-def find_correct_foil(element='Cu', edge="K"):
+elements = []
+edges = []
+edge_value = []
+for element in elements_dictonary:
+    for edge in elements_dictonary[element]:
+        edges.append(edge)
+        elements.append(element)
+        edge_value.append(float(elements_dictonary[element][edge]))
+
+dat = pd.DataFrame([elements,edges,edge_value]).T.sort_values(2)
+elements_sort = dat.loc[(dat[2]>4500) & (dat[2]<32000)]
+
+
+elements = []
+edges = []
+edge_value = []
+for element in ISS_foils:
+    for edge in ISS_foils[element]:
+        edges.append(edge)
+        elements.append(element)
+        edge_value.append(float(ISS_foils[element][edge]))
+
+dat = pd.DataFrame([elements,edges,edge_value]).T.sort_values(2)
+iss_sort = dat.loc[(dat[2]>4500) & (dat[2]<32000)]
+
+# print(elements_dictonary['Cu']['K'])
+
+# print(elements_sort)
+# print(iss_sort)
+
+def find_correct_foil1(element='Cu', edge="K"):
+    foils_options = iss_sort.loc[(iss_sort[2] > float(elements_dictonary[element][edge]) - 200) &
+                                 (iss_sort[2] < float(elements_dictonary[element][edge]) + 1000)]
 
 
 
     if element in ISS_foils.keys():
         print("set_foil_to_that_position")
     else:
-        foils_options = dict([(key, value) for key,value in ISS_foils_edges.items() if element_edge_itsvalue_sorted[element+"-"+edge]>value-200 and element_edge_itsvalue_sorted[element+"-"+edge]<value+1000])
-        foils_options = [(key, value) for key, value in foils_options.items()]
+        foils_options = iss_sort.loc[(iss_sort[2]>float(elements_dictonary[element][edge])-200) & (iss_sort[2]<float(elements_dictonary[element][edge])+1000)]
+        # foils_options = dict([(key, value) for key,value in ISS_foils_edges.items() if element_edge_itsvalue_sorted[element+"-"+edge]>value-200 and element_edge_itsvalue_sorted[element+"-"+edge]<value+1000])
+        # foils_options = [(key, value) for key, value in foils_options.items()]
+        print(foils_options)
 
-        if len(foils_options)==1:
-            print(foils_options[0][0])
-        else:
-            print(foils_options[1][0])
+        # if len(foils_options)==1:
+        #     print(foils_options[0][0])
+        # else:
+        #     print(foils_options[1][0])
+# print(element_edge_itsvalue_sorted["Bi-L-3"])
 
+# find_correct_foil("Cu", "K")
 
-def find_correct_foil2(element='Cu', edge="K"):
+def find_correct_foil(element='Cu', edge="K"):
 
     if edge in l3_edge:
         edge = "L-3"
@@ -150,16 +189,47 @@ def find_correct_foil2(element='Cu', edge="K"):
     elif edge in k_edge:
         edge = "K"
 
-    foils_options = dict([(key, value) for key,value in ISS_foils_edges.items() if element_edge_itsvalue_sorted[element+"-"+edge]>value-200 and element_edge_itsvalue_sorted[element+"-"+edge]<value+1000])
-    foils_options = [(key, value) for key, value in foils_options.items()]
+    foils_options = iss_sort.loc[(iss_sort[2] > float(elements_dictonary[element][edge]) - 200)
+                                 & (iss_sort[2] < float(elements_dictonary[element][edge]) + 1000)]
+    # print(element, edge, elements_dictonary[element][edge])
+    # print(foils_options)
 
-    if len(foils_options)==1:
-        print(foils_options[0][0].split('-')[0])
-    elif len(foils_options)==0:
-        print("No foil available going to empty foil")
-    else:
-        print(foils_options[1][0].split('-')[0])
+    if len(foils_options[0]) == 0:
+        print("going to empty holder")
+    indx = foils_options.index[(foils_options[0].str.contains(element)) & (foils_options[1].str.contains(edge))]
+    indx_k = foils_options.index[(foils_options[1].str.contains('K'))]
+    indx_l3 = foils_options.index[(foils_options[1].str.contains('L-3'))]
+    indx_l2 = foils_options.index[(foils_options[1].str.contains('L-2'))]
+    indx_l1 = foils_options.index[(foils_options[1].str.contains('L-I'))]
+
+    if len(indx) == 1:
+        print(foils_options.loc[[indx[0]]])
+    elif len(indx_k) >= 1:
+        print(foils_options.loc[[indx_k[0]]])
+    elif len(indx_l3) >= 1:
+        print(foils_options.loc[[indx_l3[0]]])
+    elif len(indx_l2) >= 1:
+        print("going to empty holder")
+        # print(foils_options.loc[[indx_l2[0]]])
+    elif len(indx_l1) >= 1:
+        print("going to empty holder")
+        # print(foils_options.loc[[indx_l1[0]]])
 
 
-find_correct_foil2(element='Eu', edge='L1')
-print("test")
+
+
+
+# for key in elements_dictonary.keys():
+#     for edge in elements_dictonary[key].keys():
+#         print(key, elements_dictonary[key][edge])
+#         find_correct_foil2(element=key, edge=edge)
+
+
+# find_correct_foil(element='Bi', edge='L3')
+
+re_indx_element = elements_sort
+re_indx_element = re_indx_element.reset_index(drop=True)
+
+for i in range(len(elements_sort[0])):
+    print("Desired element: ", re_indx_element[0][i], ", Desired Edge: ", re_indx_element[1][i], ", edge value: ", re_indx_element[2][i])
+    find_correct_foil(element=str(re_indx_element[0][i]), edge=str(re_indx_element[1][i]))
